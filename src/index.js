@@ -17,6 +17,11 @@ const reflectionCube = cubeTextureLoader.load([
     'textures/posz.jpg', 'textures/negz.jpg'
 ]);
 
+// текстура двери
+const textureLoader = new THREE.TextureLoader();
+const doorTexture = textureLoader.load('textures/door-texture.jpeg');
+
+
 // создаем сцену
 const scene = new THREE.Scene();
 
@@ -40,10 +45,9 @@ document.body.appendChild(renderer.domElement);
 const groundGeometry = new THREE.PlaneGeometry(500, 500);
 const groundMaterial = new THREE.MeshPhysicalMaterial({
     color: BACKGROUND_COLOR,
-    roughness:0.2,
-    metalness: 0.3,
+    roughness: 0.4,
+    metalness: 0.6,
     envMap: reflectionCube,
-
 });
 const ground = new THREE.Mesh(groundGeometry, groundMaterial);
 ground.rotation.x = -Math.PI / 2;
@@ -52,9 +56,9 @@ ground.receiveShadow = true;
 scene.add(ground);
 
 // примитив куб
-const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
+const cubeGeometry = new THREE.BoxGeometry(2, 2, 2);
 const cubeMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0xffffff,
+    color: 'green',
     roughness: 0.2,
     metalness: .4,
     envMap: reflectionCube,
@@ -71,7 +75,7 @@ scene.add(cube);
 // примитив сфера
 const sphereGeometry = new THREE.SphereGeometry(1, 16, 16);
 const sphereMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0xffffff,
+    color: 'yellow',
     roughness: 0.2,
     metalness: .3,
     envMap: reflectionCube,
@@ -83,12 +87,14 @@ sphere.position.set(3.5, 1, 5);
 sphere.scale.set(0.6, 0.6, 0.6);
 scene.add(sphere);
 
-
+// устанавливаем материал для двери (меш стекла)
 const doorMaterial = new THREE.MeshStandardMaterial({
-    color: 0xffffff,
-    roughness: 0.2,
-    metalness: 0.7,
-    envMap: reflectionCube,
+    color: 0xffffff, 
+    transparent: true,  
+    opacity: 0.6,  
+    roughness: 0.1, 
+    metalness: 0.7,  
+    envMap: reflectionCube, 
 });
 
 // загружаем glb модель
@@ -97,15 +103,17 @@ const modelLoader = new GLTFLoader();
 modelLoader.load('models/door.glb', (glb) => {
     glb.scene.traverse((child) => {
         if (child.isMesh) {
-            console.log(child.name)
+            console.log(child)
             child.castShadow = true;
             child.receiveShadow = true;
-            if(child.name === 'Cube001_Material002_0'){
-                child.material = doorMaterial
+            if (child.name === 'Cube001_Material002_0') {
+                child.material = doorMaterial // устнавливаем отражение на стекло двери
+            }else{
+                child.material.map = doorTexture // устанавливаем текстуру дерева на дверь
             }
         }
     });
- 
+
     door = glb.scene;
     door.scale.set(.05, .05, .05);
     door.position.set(2, 0, 0);
@@ -113,7 +121,7 @@ modelLoader.load('models/door.glb', (glb) => {
 });
 
 // свет
-const ambientLight = new THREE.AmbientLight(0xffffff, .5);
+const ambientLight = new THREE.AmbientLight(0xffffff, .3);
 const directionLight = new THREE.DirectionalLight(0xffffff, 1.5);
 directionLight.position.set(0, 5, 6);
 directionLight.castShadow = true;
@@ -159,7 +167,7 @@ const plusScale = () => {
 
 const envSphereGeometry = new THREE.SphereGeometry(50, 128, 128);
 const envSphereMaterial = new THREE.MeshBasicMaterial({
-    map: new THREE.TextureLoader().load('textures/env.jpg'),
+    map: new THREE.TextureLoader().load('textures/env.jpeg'),
     side: THREE.BackSide,
 });
 const environmentSphere = new THREE.Mesh(envSphereGeometry, envSphereMaterial);
