@@ -32,5 +32,11 @@ body {
   align-items: center;
   cursor: pointer;
   color: rgb(72, 68, 68);
-  font-size: 60px
+  font-size: 60px;
+}
+.btn:hover {
+  color: rgb(239, 231, 143);
+}
+.btn:active {
+  color: rgb(131, 172, 153);
 }

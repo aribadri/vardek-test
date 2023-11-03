@@ -89,12 +89,12 @@ scene.add(sphere);
 
 // устанавливаем материал для двери (меш стекла)
 const doorMaterial = new THREE.MeshStandardMaterial({
-    color: 0xffffff, 
-    transparent: true,  
-    opacity: 0.6,  
-    roughness: 0.1, 
-    metalness: 0.7,  
-    envMap: reflectionCube, 
+    color: 0xffffff,
+    transparent: true,
+    opacity: 0.6,
+    roughness: 0.1,
+    metalness: 0.7,
+    envMap: reflectionCube,
 });
 
 // загружаем glb модель
@@ -108,7 +108,7 @@ modelLoader.load('models/door.glb', (glb) => {
             child.receiveShadow = true;
             if (child.name === 'Cube001_Material002_0') {
                 child.material = doorMaterial // устнавливаем отражение на стекло двери
-            }else{
+            } else {
                 child.material.map = doorTexture // устанавливаем текстуру дерева на дверь
             }
         }
