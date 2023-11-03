@@ -2,11 +2,20 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
+
 // инициализируем переменные
 const minusBtn = document.getElementById('scale-minus');
 const plusBtn = document.getElementById('scale-plus');
 const BACKGROUND_COLOR = new THREE.Color(0xf1f1f1);
 
+
+// cubemap
+const cubeTextureLoader = new THREE.CubeTextureLoader();
+const reflectionCube = cubeTextureLoader.load([
+    'textures/posx.jpg', 'textures/negx.jpg',
+    'textures/posy.jpg', 'textures/negy.jpg',
+    'textures/posz.jpg', 'textures/negz.jpg'
+]);
 
 // создаем сцену
 const scene = new THREE.Scene();
@@ -14,7 +23,7 @@ const scene = new THREE.Scene();
 
 // камера
 const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 2000);
-camera.position.set(0, 5.5, 25);
+camera.position.set(0, 8.5, 25);
 scene.add(camera);
 
 // создаем рендер
@@ -29,7 +38,13 @@ document.body.appendChild(renderer.domElement);
 
 // примитив плейн (пол)
 const groundGeometry = new THREE.PlaneGeometry(500, 500);
-const groundMaterial = new THREE.MeshStandardMaterial({ color: BACKGROUND_COLOR });
+const groundMaterial = new THREE.MeshPhysicalMaterial({
+    color: BACKGROUND_COLOR,
+    roughness:0.2,
+    metalness: 0.3,
+    envMap: reflectionCube,
+
+});
 const ground = new THREE.Mesh(groundGeometry, groundMaterial);
 ground.rotation.x = -Math.PI / 2;
 ground.position.y = 0;
@@ -41,7 +56,9 @@ const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
 const cubeMaterial = new THREE.MeshPhysicalMaterial({
     color: 0xffffff,
     roughness: 0.2,
-    metalness: .7,
+    metalness: .4,
+    envMap: reflectionCube,
+
 });
 const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
 cube.castShadow = true;
@@ -56,7 +73,9 @@ const sphereGeometry = new THREE.SphereGeometry(1, 16, 16);
 const sphereMaterial = new THREE.MeshPhysicalMaterial({
     color: 0xffffff,
     roughness: 0.2,
-    metalness: .7,
+    metalness: .3,
+    envMap: reflectionCube,
+
 });
 const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
 sphere.castShadow = true;
@@ -65,28 +84,31 @@ sphere.scale.set(0.6, 0.6, 0.6);
 scene.add(sphere);
 
 
+const doorMaterial = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    roughness: 0.2,
+    metalness: 0.7,
+    envMap: reflectionCube,
+});
 
 // загружаем glb модель
 let door
 const modelLoader = new GLTFLoader();
 modelLoader.load('models/door.glb', (glb) => {
-    glb.scene.traverse ( (child) => {
-        if ( child.isMesh )
-        {
+    glb.scene.traverse((child) => {
+        if (child.isMesh) {
+            console.log(child.name)
             child.castShadow = true;
             child.receiveShadow = true;
+            if(child.name === 'Cube001_Material002_0'){
+                child.material = doorMaterial
+            }
         }
-      });
-    const doorMaterial = new THREE.MeshPhysicalMaterial({
-        color: 0xffffff,
-        roughness: 0.2,
-        metalness: 0.1,
-        shadowSide: THREE.DoubleSide, 
     });
+ 
     door = glb.scene;
     door.scale.set(.05, .05, .05);
     door.position.set(2, 0, 0);
-    door.material = doorMaterial
     scene.add(door);
 });
 
@@ -114,31 +136,31 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.03;
 controls.maxPolarAngle = Math.PI / 2 - 0.08;
-controls.minDistance = 5; 
+controls.minDistance = 5;
 controls.maxDistance = 35;
 
 
 // уменьшения и увелечения скейла двери
 let currentScale = 0.05;
 let targetScale = currentScale;
-const scaleSpeed = 0.005; 
+const scaleSpeed = 0.005;
 
 
 const minusScale = () => {
-  targetScale -= scaleSpeed;
+    targetScale -= scaleSpeed;
 }
 
 const plusScale = () => {
-  targetScale += scaleSpeed;
+    targetScale += scaleSpeed;
 
 }
 
 // окружение 
 
-const envSphereGeometry = new THREE.SphereGeometry(50, 128, 128); 
+const envSphereGeometry = new THREE.SphereGeometry(50, 128, 128);
 const envSphereMaterial = new THREE.MeshBasicMaterial({
-  map: new THREE.TextureLoader().load('textures/env.jpg'),
-  side: THREE.BackSide, 
+    map: new THREE.TextureLoader().load('textures/env.jpg'),
+    side: THREE.BackSide,
 });
 const environmentSphere = new THREE.Mesh(envSphereGeometry, envSphereMaterial);
 scene.add(environmentSphere);
@@ -149,12 +171,12 @@ function animate() {
     if (Math.abs(currentScale - targetScale) > 0.001) {
         currentScale += (targetScale - currentScale) * 0.05;
         if (door) {
-          door.scale.x = currentScale;
-          door.scale.y = currentScale;
-          door.updateMatrix(); 
-          directionLight.shadow.map.needsUpdate = true
+            door.scale.x = currentScale;
+            door.scale.y = currentScale;
+            door.updateMatrix();
+            directionLight.shadow.map.needsUpdate = true
         }
-      }
+    }
     renderer.render(scene, camera);
 }
 
