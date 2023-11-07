@@ -18,25 +18,13 @@ body {
   top: 5%;
   left: 5%;
   width: 40px;
-  height: 120px;
+  height: 80px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
 }
-.btn {
-  width: 100%;
-  height: 45%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  color: rgb(72, 68, 68);
-  font-size: 60px;
-}
-.btn:hover {
-  color: rgb(239, 231, 143);
-}
-.btn:active {
-  color: rgb(131, 172, 153);
+
+label {
+    color: rgb(164, 138, 138)
 }

@@ -10,9 +10,16 @@
 
 <body>
     <div id="btns-wrapper">
-        <div id="scale-plus" class="btn">⬆</div>
-        <div id="scale-minus" class="btn">⬇</div>
+        <label>
+            width
+        </label>
+        <input type="range" id="scale-width" min="0.06" max="0.1" step="0.00001" value="0.1">
+        <label>
+            height
+        </label>
+        <input type="range" id="scale-height" min="0.06" max="0.1" step="0.00001" value="0.1">
     </div>
+
     <script type="module" src="./index.js"></script>
 </body>
 
